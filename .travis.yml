@@ -1,4 +1,11 @@
 language: node_js
 node_js: node
 services:
-- mongodb 
+- mongodb
+deploy:
+  provider: heroku
+  api_key:
+    secure: Y1409wpqRNC4wmFfKAijIybUOS1H8HQYwiR7Syx/QjJH6Y6oept4njLnFO4sNg0y7raUa80zZ6o268Rh5Xb5nASJg6iTv1AqcfTpgKgy1530hj/gcuaFhuhedb7zgTlx41OPtOq50/BBWKpza3BZg4QUDBj21wPMcrPTV2MLSCXrCrs06dD2F9aTeehx+tSL7aMP46S6RZVHK3m69MXDioNlidA5aF/6CmM99fPZu/4TCSgrtHdoDlFQLrlxyNIXaUEQzXJTSkk9oeRLeOA7+mdGWTGxVDStAbOSnQmsYiu724v36NW/8ztcELDzQ3T5ZXru6vE6wAGkVIHulGOLtUzw1Ds467sQmwdDdDU+G1nfmait9KJAyFfQ/8hidmOg4fZoSIY6N4wmYI+6a+k6rKPO0UCCKg4eJyxQpblPB69FAVGy9SEMBdp9Z3hoC0wtgEyo1HxF7PUgZ/PPJDA+BZs5U299NGRfqlPYTwgsYiKp8BeHYkktb9m1l0l2vg3xuunUOf6DfmhKpoLsp8OjCa//rRZGAcDOHAo4RVlY+fWye6lSEbttj4UYPQkmt72o0XT1X5RRO72ljJ3n7vkDMiZ6OyPLKT6YDjLBv/LQEp8wdExdaYegzhuJwKPG/yHMy6VPkAeYc7iASuGa3HET4kaolx9Xzo82nO7PlXry5NY=
+  app: pasture-map-test
+  on:
+    repo: ladyjem/pasture-map-test

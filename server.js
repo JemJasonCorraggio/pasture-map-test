@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const morgan = require('morgan');
 
 const {DATABASE_URL, PORT} = require('./config');
-const {BlogPost} = require('./models');
+const {Animal} = require('./models');
 
 const app = express();
 
@@ -14,11 +14,28 @@ app.use(bodyParser.json());
 mongoose.Promise = global.Promise;
 
 
-app.get('/posts', (req, res) => {
-  BlogPost
+app.get('/animal', (req, res) => {
+  Animal
     .find()
-    .then(posts => {
-      res.json(posts.map(post => post.apiRepr()));
+    .then(animals => {
+      res.json(animals);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({error: 'something went terribly wrong'});
+    });
+});
+app.get('/animal/estimated_weight', (req, res) => {
+  var sum = 0;
+  var num = 0;
+  Animal
+    .find()
+    .then(animals => {
+      animals.forEach(animal=> {
+        sum +=animal.estimatedWeight(req.params.date);
+        num +=1;
+      });
+      res.json(sum);
     })
     .catch(err => {
       console.error(err);
@@ -26,34 +43,31 @@ app.get('/posts', (req, res) => {
     });
 });
 
-app.get('/posts/:id', (req, res) => {
-  BlogPost
-    .findById(req.params.id)
-    .then(post => res.json(post.apiRepr()))
-    .catch(err => {
-      console.error(err);
-      res.status(500).json({error: 'something went horribly awry'});
-    });
-});
 
-app.post('/posts', (req, res) => {
-  const requiredFields = ['title', 'content', 'author'];
-  for (let i=0; i<requiredFields.length; i++) {
-    const field = requiredFields[i];
-    if (!(field in req.body)) {
-      const message = `Missing \`${field}\` in request body`;
-      console.error(message);
-      return res.status(400).send(message);
-    }
-  }
+app.post('/animal', (req, res) => {
 
-  BlogPost
-    .create({
-      title: req.body.title,
-      content: req.body.content,
-      author: req.body.author
+ Animal
+    .create({})
+    .then(animal => {
+      res.status(201).json(animal);
     })
-    .then(blogPost => res.status(201).json(blogPost.apiRepr()))
+    .catch(err => {
+        console.error(err);
+        res.status(500).json({error: 'Something went wrong'});
+    });
+
+});
+app.post('/animal/:id/weight', (req, res) => {
+
+ Animal
+    .findById(req.params.id)
+    .then(animal => {
+      animal.weights.push(req.body);
+      Animal.findByIdAndUpdate(animal._id, {$set: {weights: animal.weights}})
+      .then(animal =>{
+        res.status(201).json(animal);
+      });
+    })
     .catch(err => {
         console.error(err);
         res.status(500).json({error: 'Something went wrong'});
@@ -61,50 +75,6 @@ app.post('/posts', (req, res) => {
 
 });
 
-
-app.delete('/posts/:id', (req, res) => {
-  BlogPost
-    .findByIdAndRemove(req.params.id)
-    .then(() => {
-      res.status(204).json({message: 'success'});
-    })
-    .catch(err => {
-      console.error(err);
-      res.status(500).json({error: 'something went terribly wrong'});
-    });
-});
-
-
-app.put('/posts/:id', (req, res) => {
-  if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
-    res.status(400).json({
-      error: 'Request path id and request body id values must match'
-    });
-  }
-
-  const updated = {};
-  const updateableFields = ['title', 'content', 'author'];
-  updateableFields.forEach(field => {
-    if (field in req.body) {
-      updated[field] = req.body[field];
-    }
-  });
-
-  BlogPost
-    .findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
-    .then(updatedPost => res.status(204).end())
-    .catch(err => res.status(500).json({message: 'Something went wrong'}));
-});
-
-
-app.delete('/:id', (req, res) => {
-  BlogPost
-    .findByIdAndRemove(req.params.id)
-    .then(() => {
-      console.log(`Deleted blog post with id \`${req.params.ID}\``);
-      res.status(204).end();
-    });
-});
 
 
 app.use('*', function(req, res) {
